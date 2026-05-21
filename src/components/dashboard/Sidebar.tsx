@@ -63,7 +63,7 @@ export function Sidebar() {
         </div>
       </div>
       <div className="px-6 py-4 flex items-center gap-x-4 border-t border-white/10">
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
         <span className="text-sm font-medium text-zinc-400">Account</span>
       </div>
     </div>

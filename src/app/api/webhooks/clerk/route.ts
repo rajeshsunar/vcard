@@ -1,9 +1,12 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import prisma from '@/lib/db'
+
+export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
+  const prisma = (await import('@/lib/db')).default
+
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
 
   if (!WEBHOOK_SECRET) {
