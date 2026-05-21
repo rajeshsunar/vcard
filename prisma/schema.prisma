@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id // Maps to Clerk User ID
+  email         String    @unique
+  firstName     String?
+  lastName      String?
+  stripeId      String?   @unique
+  plan          Plan      @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  cards         Card[]
+  contacts      Contact[] // Leads captured by this user
+  organizationId String?  // For B2B/Teams
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+model Card {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug        String   @unique // The custom URL, e.g., /u/john-doe
+  title       String   // e.g., "Work", "Personal"
+  
+  // Profile Data
+  name        String
+  jobTitle    String?
+  company     String?
+  bio         String?
+  avatarUrl   String?
+  coverUrl    String?
+  
+  // Design
+  theme       String   @default("default")
+  colorHex    String   @default("#000000")
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  links       Link[]
+  analytics   Analytics[]
+  capturedLeads Contact[] @relation("CardLeads")
+}
+
+model Link {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  type      String   // e.g., "instagram", "linkedin", "website", "phone"
+  url       String
+  title     String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+}
+
+model Analytics {
+  id        String   @id @default(cuid())
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  eventType EventType
+  metadata  Json?    
+  createdAt DateTime @default(now())
+}
+
+enum EventType {
+  PAGE_VIEW
+  QR_SCAN
+  LINK_CLICK
+  CONTACT_DOWNLOAD
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  ownerId   String   // The user who owns this contact (the card creator)
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sourceCardId String? // Which card they scanned to connect
+  sourceCard Card?   @relation("CardLeads", fields: [sourceCardId], references: [id], onDelete: SetNull)
+  
+  // Captured data
+  name      String
+  email     String?
+  phone     String?
+  company   String?
+  notes     String?
+  
+  createdAt DateTime @default(now())
+}
