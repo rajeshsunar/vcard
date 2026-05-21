@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, ExternalLink, Settings } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card as PrismaCard } from "@prisma/client";
 
 export default async function CardsPage() {
   const { userId } = await auth();
@@ -50,7 +51,7 @@ export default async function CardsPage() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card) => (
+          {cards.map((card: PrismaCard) => (
             <Card key={card.id}>
               <CardHeader>
                 <CardTitle>{card.title}</CardTitle>

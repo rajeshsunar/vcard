@@ -4,6 +4,7 @@ import prisma from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, Building } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Contact, Card as PrismaCard } from "@prisma/client";
 
 export default async function ContactsPage() {
   const { userId } = await auth();
@@ -20,7 +21,7 @@ export default async function ContactsPage() {
         select: { title: true, slug: true }
       }
     }
-  });
+  }) as (Contact & { sourceCard: { title: string; slug: string } | null })[];
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
@@ -40,7 +41,7 @@ export default async function ContactsPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {contacts.map((contact) => (
+          {contacts.map((contact: Contact & { sourceCard: { title: string; slug: string } | null }) => (
             <Card key={contact.id}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex justify-between items-start">
